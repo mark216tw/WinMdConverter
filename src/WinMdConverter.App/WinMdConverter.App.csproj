@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>WinMdConverter</AssemblyName>
+    <ApplicationIcon>..\..\assets\WinMdConverter.ico</ApplicationIcon>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinMdConverter.Core\WinMdConverter.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="..\..\assets\WinMdConverter.ico" Link="Assets\WinMdConverter.ico" />
+  </ItemGroup>
+
+</Project>

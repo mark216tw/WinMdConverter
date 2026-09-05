@@ -1,0 +1,41 @@
+name: 錯誤回報
+description: 回報可重現的功能問題
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: 請勿在公開 Issue 上傳含有個人資料或敏感資訊的 Markdown 文件。
+  - type: input
+    id: version
+    attributes:
+      label: WinMdConverter 版本
+      placeholder: 例如 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本
+      placeholder: 例如 Windows 11 24H2 x64
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重現步驟
+      description: 請提供最小且可重現的步驟。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 預期行為
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 實際行為與錯誤訊息
+    validations:
+      required: true

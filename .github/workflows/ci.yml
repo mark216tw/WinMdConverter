@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - name: 取出原始碼
+        uses: actions/checkout@v4
+
+      - name: 安裝 .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 還原套件
+        run: dotnet restore WinMdConverter.sln
+
+      - name: 建置
+        run: dotnet build WinMdConverter.sln --configuration Release --no-restore
+
+      - name: 測試
+        run: dotnet test WinMdConverter.sln --configuration Release --no-build
