@@ -5,10 +5,12 @@ namespace WinMdConverter.Core;
 public sealed class MarkdownConversionService(
     HtmlDocumentBuilder? htmlBuilder = null,
     EdgePdfConverter? pdfConverter = null,
+    DocxConverter? docxConverter = null,
     FontService? fontService = null)
 {
     private readonly HtmlDocumentBuilder _htmlBuilder = htmlBuilder ?? new HtmlDocumentBuilder();
     private readonly EdgePdfConverter _pdfConverter = pdfConverter ?? new EdgePdfConverter();
+    private readonly DocxConverter _docxConverter = docxConverter ?? new DocxConverter();
     private readonly FontService _fontService = fontService ?? new FontService();
 
     public async Task<ConversionResult> ConvertAsync(
@@ -28,7 +30,8 @@ public sealed class MarkdownConversionService(
         var baseName = Path.GetFileNameWithoutExtension(options.InputPath);
         var htmlOutputPath = Path.Combine(options.OutputDirectory, $"{baseName}.html");
         var pdfOutputPath = Path.Combine(options.OutputDirectory, $"{baseName}.pdf");
-        EnsureCanWrite(options, htmlOutputPath, pdfOutputPath);
+        var docxOutputPath = Path.Combine(options.OutputDirectory, $"{baseName}.docx");
+        EnsureCanWrite(options, htmlOutputPath, pdfOutputPath, docxOutputPath);
 
         progress?.Report(new(10, "讀取 Markdown"));
         var markdown = await File.ReadAllTextAsync(options.InputPath, Encoding.UTF8, cancellationToken);
@@ -40,6 +43,7 @@ public sealed class MarkdownConversionService(
         var errors = new List<string>();
         string? completedHtmlPath = null;
         string? completedPdfPath = null;
+        string? completedDocxPath = null;
         string? temporaryHtmlPath = null;
 
         try
@@ -62,14 +66,14 @@ public sealed class MarkdownConversionService(
                     htmlForPdf = temporaryHtmlPath;
                 }
 
-                progress?.Report(new(80, "啟動 Microsoft Edge"));
+                progress?.Report(new(65, "啟動 Microsoft Edge"));
                 var temporaryPdfPath = Path.Combine(options.OutputDirectory, $".{baseName}.{Guid.NewGuid():N}.tmp.pdf");
                 try
                 {
                     await _pdfConverter.ConvertAsync(htmlForPdf, temporaryPdfPath, cancellationToken);
                     File.Move(temporaryPdfPath, pdfOutputPath, options.Overwrite);
                     completedPdfPath = pdfOutputPath;
-                    progress?.Report(new(95, "產生 PDF"));
+                    progress?.Report(new(80, "產生 PDF"));
                 }
                 catch (OperationCanceledException)
                 {
@@ -82,6 +86,25 @@ public sealed class MarkdownConversionService(
                     errors.Add(exception.Message);
                 }
             }
+
+            if (options.Format.HasFlag(OutputFormat.Docx))
+            {
+                progress?.Report(new(85, "產生 DOCX"));
+                try
+                {
+                    await _docxConverter.ConvertAsync(built.Html, docxOutputPath, effectiveOptions, cancellationToken);
+                    completedDocxPath = docxOutputPath;
+                    progress?.Report(new(95, "儲存 DOCX"));
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    errors.Add($"DOCX：{exception.Message}");
+                }
+            }
         }
         finally
         {
@@ -89,17 +112,20 @@ public sealed class MarkdownConversionService(
                 TryDelete(temporaryHtmlPath);
         }
 
-        progress?.Report(new(100, errors.Count == 0 ? "轉換完成" : "部分轉換完成"));
-        return new ConversionResult(completedHtmlPath, completedPdfPath, warnings, errors);
+        var result = new ConversionResult(completedHtmlPath, completedPdfPath, completedDocxPath, warnings, errors);
+        progress?.Report(new(100, result.IsSuccess ? "轉換完成" : result.IsPartial ? "部分轉換完成" : "轉換失敗"));
+        return result;
     }
 
-    private static void EnsureCanWrite(ConversionOptions options, string htmlPath, string pdfPath)
+    private static void EnsureCanWrite(ConversionOptions options, string htmlPath, string pdfPath, string docxPath)
     {
         var conflicts = new List<string>();
         if (!options.Overwrite && options.Format.HasFlag(OutputFormat.Html) && File.Exists(htmlPath))
             conflicts.Add(htmlPath);
         if (!options.Overwrite && options.Format.HasFlag(OutputFormat.Pdf) && File.Exists(pdfPath))
             conflicts.Add(pdfPath);
+        if (!options.Overwrite && options.Format.HasFlag(OutputFormat.Docx) && File.Exists(docxPath))
+            conflicts.Add(docxPath);
 
         if (conflicts.Count > 0)
             throw new IOException($"輸出檔案已存在：{string.Join(", ", conflicts)}");

@@ -7,7 +7,7 @@ public sealed record CliArguments
 {
     public string? InputPath { get; init; }
     public string? OutputDirectory { get; init; }
-    public OutputFormat Format { get; init; } = OutputFormat.Both;
+    public OutputFormat Format { get; init; } = OutputFormat.None;
     public PageOrientation Orientation { get; init; } = PageOrientation.Portrait;
     public decimal? ScalePercent { get; init; }
     public MarginMode MarginMode { get; init; } = MarginMode.Default;
@@ -44,7 +44,7 @@ public sealed record CliArguments
     {
         string? input = null;
         string? output = null;
-        var format = OutputFormat.Both;
+        var format = OutputFormat.None;
         var orientation = PageOrientation.Portrait;
         decimal? scale = null;
         var marginMode = MarginMode.Default;
@@ -146,6 +146,9 @@ public sealed record CliArguments
         if (marginMode == MarginMode.Custom && customMargins is null)
             throw new ArgumentException("--margin custom 需要四個 --margin-* 參數。");
 
+        if (format == OutputFormat.None && !help && !version && !listFonts)
+            throw new ArgumentException("請指定 --format；可使用 html、pdf、docx、逗號組合或 all。");
+
         return new CliArguments
         {
             InputPath = input,
@@ -174,13 +177,35 @@ public sealed record CliArguments
         return arguments[index];
     }
 
-    private static OutputFormat ParseFormat(string value) => value.ToLowerInvariant() switch
+    private static OutputFormat ParseFormat(string value)
     {
-        "html" => OutputFormat.Html,
-        "pdf" => OutputFormat.Pdf,
-        "both" => OutputFormat.Both,
-        _ => throw new ArgumentException("--format 必須是 html、pdf 或 both。")
-    };
+        var values = value.Split(',', StringSplitOptions.TrimEntries);
+        if (values.Length == 0 || values.Any(string.IsNullOrWhiteSpace))
+            throw new ArgumentException("--format 不可為空，請使用 html、pdf、docx、逗號組合或 all。");
+
+        if (values.Length == 1 && values[0].Equals("all", StringComparison.OrdinalIgnoreCase))
+            return OutputFormat.All;
+        if (values.Any(item => item.Equals("all", StringComparison.OrdinalIgnoreCase)))
+            throw new ArgumentException("--format all 不可與其他格式混用。");
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var format = OutputFormat.None;
+        foreach (var item in values)
+        {
+            if (!seen.Add(item))
+                throw new ArgumentException($"--format 包含重複格式：{item}");
+
+            format |= item.ToLowerInvariant() switch
+            {
+                "html" => OutputFormat.Html,
+                "pdf" => OutputFormat.Pdf,
+                "docx" => OutputFormat.Docx,
+                _ => throw new ArgumentException($"--format 包含不支援的格式：{item}")
+            };
+        }
+
+        return format;
+    }
 
     private static PageOrientation ParseOrientation(string value) => value.ToLowerInvariant() switch
     {

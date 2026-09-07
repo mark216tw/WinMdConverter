@@ -3,9 +3,11 @@ namespace WinMdConverter.Core;
 [Flags]
 public enum OutputFormat
 {
+    None = 0,
     Html = 1,
     Pdf = 2,
-    Both = Html | Pdf
+    Docx = 4,
+    All = Html | Pdf | Docx
 }
 
 public enum PageOrientation
@@ -33,7 +35,7 @@ public sealed record ConversionOptions
 {
     public required string InputPath { get; init; }
     public required string OutputDirectory { get; init; }
-    public OutputFormat Format { get; init; } = OutputFormat.Both;
+    public OutputFormat Format { get; init; } = OutputFormat.None;
     public PageOrientation Orientation { get; init; } = PageOrientation.Portrait;
     public decimal? ScalePercent { get; init; }
     public MarginMode MarginMode { get; init; } = MarginMode.Default;
@@ -48,11 +50,12 @@ public sealed record ConversionProgress(int Percentage, string Message);
 public sealed record ConversionResult(
     string? HtmlPath,
     string? PdfPath,
+    string? DocxPath,
     IReadOnlyList<string> Warnings,
     IReadOnlyList<string> Errors)
 {
     public bool IsSuccess => Errors.Count == 0;
-    public bool IsPartial => Errors.Count > 0 && (HtmlPath is not null || PdfPath is not null);
+    public bool IsPartial => Errors.Count > 0 && (HtmlPath is not null || PdfPath is not null || DocxPath is not null);
 }
 
 public sealed class ConversionValidationException(IReadOnlyList<string> errors)

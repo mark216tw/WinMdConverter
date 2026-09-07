@@ -14,6 +14,24 @@ WinMdConverter 本身採用 MIT License。發佈成品包含或使用下列第�
 - 用途：self-contained Windows 執行環境
 - 授權：MIT License，以及各發佈內容中標示的第三方授權
 
+## HtmlToOpenXml.dll
+
+- 專案：https://github.com/onizet/html2openxml
+- 用途：將 HTML 文件結構轉換為 WordprocessingML
+- 授權：MIT License
+
+## Open XML SDK
+
+- 專案：https://github.com/dotnet/Open-XML-SDK
+- 用途：建立及寫入 DOCX Open XML package
+- 授權：MIT License
+
+## AngleSharp
+
+- 專案：https://github.com/AngleSharp/AngleSharp
+- 用途：HtmlToOpenXml.dll 使用的 HTML 解析元件
+- 授權：MIT License
+
 ## Microsoft Edge
 
 - 用途：使用者系統上的 Headless PDF 列印引擎

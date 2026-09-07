@@ -16,8 +16,10 @@ public static class ConversionOptionsValidator
         if (string.IsNullOrWhiteSpace(options.OutputDirectory))
             errors.Add("請指定輸出資料夾。");
 
-        if ((options.Format & OutputFormat.Both) == 0)
+        if (options.Format == OutputFormat.None)
             errors.Add("請至少選擇一種輸出格式。");
+        else if ((options.Format & ~OutputFormat.All) != 0)
+            errors.Add("輸出格式包含不支援的值。");
 
         if (options.ScalePercent is < 50 or > 200)
             errors.Add("自訂縮放比例必須介於 50% 到 200%。");

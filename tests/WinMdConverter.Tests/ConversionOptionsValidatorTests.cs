@@ -46,4 +46,45 @@ public sealed class ConversionOptionsValidatorTests
         Assert.True(File.Exists(result.HtmlPath));
         Assert.Contains("<!doctype html>", await File.ReadAllTextAsync(result.HtmlPath));
     }
+
+    [Fact]
+    public void Validate_AcceptsDocxOnlyAndRejectsUnknownFormat()
+    {
+        using var directory = new TemporaryDirectory();
+        var input = Path.Combine(directory.Path, "document.md");
+        File.WriteAllText(input, "# Test");
+        var options = new ConversionOptions
+        {
+            InputPath = input,
+            OutputDirectory = directory.Path,
+            Format = OutputFormat.Docx
+        };
+
+        Assert.Empty(ConversionOptionsValidator.Validate(options));
+
+        var errors = ConversionOptionsValidator.Validate(options with { Format = (OutputFormat)8 });
+        Assert.Contains(errors, error => error.Contains("不支援", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ConvertAsync_RejectsExistingDocxBeforeConversion()
+    {
+        using var directory = new TemporaryDirectory();
+        var input = Path.Combine(directory.Path, "document.md");
+        var output = Path.Combine(directory.Path, "document.docx");
+        File.WriteAllText(input, "# Test");
+        File.WriteAllText(output, "existing");
+        var options = new ConversionOptions
+        {
+            InputPath = input,
+            OutputDirectory = directory.Path,
+            Format = OutputFormat.Docx
+        };
+
+        var exception = await Assert.ThrowsAsync<IOException>(() =>
+            new MarkdownConversionService().ConvertAsync(options));
+
+        Assert.Contains(output, exception.Message);
+        Assert.Equal("existing", File.ReadAllText(output));
+    }
 }

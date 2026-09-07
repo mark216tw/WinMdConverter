@@ -8,6 +8,7 @@ public sealed record AppSettings
     public string? OutputDirectory { get; init; }
     public bool OutputHtml { get; init; } = true;
     public bool OutputPdf { get; init; } = true;
+    public bool OutputDocx { get; init; } = true;
     public bool Landscape { get; init; }
     public decimal? ScalePercent { get; init; }
     public int MarginMode { get; init; }

@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private CancellationTokenSource? _cancellation;
     private string? _htmlPath;
     private string? _pdfPath;
+    private string? _docxPath;
 
     public MainWindow()
     {
@@ -45,6 +46,7 @@ public partial class MainWindow : Window
         OutputPathBox.Text = settings.OutputDirectory ?? string.Empty;
         HtmlCheckBox.IsChecked = settings.OutputHtml;
         PdfCheckBox.IsChecked = settings.OutputPdf;
+        DocxCheckBox.IsChecked = settings.OutputDocx;
         OrientationComboBox.SelectedIndex = settings.Landscape ? 1 : 0;
         ScaleModeComboBox.SelectedIndex = settings.ScalePercent is null ? 0 : 1;
         ScaleBox.Text = (settings.ScalePercent ?? 100).ToString(CultureInfo.CurrentCulture);
@@ -141,7 +143,8 @@ public partial class MainWindow : Window
             var result = await _conversionService.ConvertAsync(options, progress, _cancellation.Token);
             _htmlPath = result.HtmlPath;
             _pdfPath = result.PdfPath;
-            StatusText.Text = result.IsSuccess ? "轉換完成" : "部分轉換完成";
+            _docxPath = result.DocxPath;
+            StatusText.Text = result.IsSuccess ? "轉換完成" : result.IsPartial ? "部分轉換完成" : "轉換失敗";
             ShowResult(result);
         }
         catch (OperationCanceledException)
@@ -181,7 +184,8 @@ public partial class MainWindow : Window
         }
 
         var format = (HtmlCheckBox.IsChecked == true ? OutputFormat.Html : 0) |
-                     (PdfCheckBox.IsChecked == true ? OutputFormat.Pdf : 0);
+                     (PdfCheckBox.IsChecked == true ? OutputFormat.Pdf : 0) |
+                     (DocxCheckBox.IsChecked == true ? OutputFormat.Docx : 0);
         var selectedFont = FontComboBox.SelectedItem as string;
 
         return new ConversionOptions
@@ -210,14 +214,16 @@ public partial class MainWindow : Window
     {
         var name = Path.GetFileNameWithoutExtension(options.InputPath);
         return options.Format.HasFlag(OutputFormat.Html) && File.Exists(Path.Combine(options.OutputDirectory, $"{name}.html")) ||
-               options.Format.HasFlag(OutputFormat.Pdf) && File.Exists(Path.Combine(options.OutputDirectory, $"{name}.pdf"));
+               options.Format.HasFlag(OutputFormat.Pdf) && File.Exists(Path.Combine(options.OutputDirectory, $"{name}.pdf")) ||
+               options.Format.HasFlag(OutputFormat.Docx) && File.Exists(Path.Combine(options.OutputDirectory, $"{name}.docx"));
     }
 
     private void ShowResult(ConversionResult result)
     {
         OpenHtmlButton.Visibility = result.HtmlPath is null ? Visibility.Collapsed : Visibility.Visible;
         OpenPdfButton.Visibility = result.PdfPath is null ? Visibility.Collapsed : Visibility.Visible;
-        ResultLinksPanel.Visibility = result.HtmlPath is not null || result.PdfPath is not null
+        OpenDocxButton.Visibility = result.DocxPath is null ? Visibility.Collapsed : Visibility.Visible;
+        ResultLinksPanel.Visibility = result.HtmlPath is not null || result.PdfPath is not null || result.DocxPath is not null
             ? Visibility.Visible
             : Visibility.Collapsed;
 
@@ -250,6 +256,8 @@ public partial class MainWindow : Window
 
     private void OpenPdf_Click(object sender, RoutedEventArgs e) => OpenPath(_pdfPath);
 
+    private void OpenDocx_Click(object sender, RoutedEventArgs e) => OpenPath(_docxPath);
+
     private void OpenFolder_Click(object sender, RoutedEventArgs e) => OpenPath(OutputPathBox.Text);
 
     private static void OpenPath(string? path)
@@ -269,6 +277,7 @@ public partial class MainWindow : Window
                 OutputDirectory = options.OutputDirectory,
                 OutputHtml = options.Format.HasFlag(OutputFormat.Html),
                 OutputPdf = options.Format.HasFlag(OutputFormat.Pdf),
+                OutputDocx = options.Format.HasFlag(OutputFormat.Docx),
                 Landscape = options.Orientation == PageOrientation.Landscape,
                 ScalePercent = options.ScalePercent,
                 MarginMode = (int)options.MarginMode,

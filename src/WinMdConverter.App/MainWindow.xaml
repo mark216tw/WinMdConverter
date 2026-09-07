@@ -49,7 +49,8 @@
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                             <TextBlock Text="輸出格式" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,18,0" />
                             <CheckBox x:Name="HtmlCheckBox" Content="HTML" IsChecked="True" VerticalAlignment="Center" Margin="0,0,22,0" />
-                            <CheckBox x:Name="PdfCheckBox" Content="PDF" IsChecked="True" VerticalAlignment="Center" />
+                            <CheckBox x:Name="PdfCheckBox" Content="PDF" IsChecked="True" VerticalAlignment="Center" Margin="0,0,22,0" />
+                            <CheckBox x:Name="DocxCheckBox" Content="DOCX" IsChecked="True" VerticalAlignment="Center" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -83,7 +84,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="縮放比例" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,4" />
+                                <TextBlock Text="縮放比例（HTML / PDF）" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,4" />
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -142,6 +143,7 @@
                         <StackPanel x:Name="ResultLinksPanel" Orientation="Horizontal" Margin="0,8,0,0" Visibility="Collapsed">
                             <Button x:Name="OpenHtmlButton" Content="開啟 HTML" Style="{StaticResource LinkButton}" Click="OpenHtml_Click" />
                             <Button x:Name="OpenPdfButton" Content="開啟 PDF" Style="{StaticResource LinkButton}" Click="OpenPdf_Click" />
+                            <Button x:Name="OpenDocxButton" Content="開啟 DOCX" Style="{StaticResource LinkButton}" Click="OpenDocx_Click" />
                             <Button Content="開啟輸出資料夾" Style="{StaticResource LinkButton}" Click="OpenFolder_Click" />
                         </StackPanel>
                     </StackPanel>

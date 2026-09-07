@@ -8,14 +8,14 @@
 [![授權](https://img.shields.io/github/license/mark216tw/WinMdConverter)](LICENSE)
 [![平台](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-176b63)](https://github.com/mark216tw/WinMdConverter)
 
-WinMdConverter 是一套簡單、離線且實用的 Windows Markdown 文件轉換工具，可透過圖形介面或命令列將單一 Markdown 文件輸出為 HTML、PDF，或同時輸出兩種格式。
+WinMdConverter 是一套簡單、離線且實用的 Windows Markdown 文件轉換工具，可透過圖形介面或命令列將單一 Markdown 文件輸出為 HTML、PDF、DOCX 或任意格式組合。
 
 軟體不提供 Markdown 預覽，操作流程專注於選取文件、設定輸出及完成轉換。Markdown 內容全程在本機處理，不會上傳到網路服務。
 
 ## 下載
 
-- [下載 Windows 安裝版](https://github.com/mark216tw/WinMdConverter/releases/download/v0.1.0/WinMdConverter-Setup-0.1.0-x64.exe)
-- [下載 Windows 可攜版](https://github.com/mark216tw/WinMdConverter/releases/download/v0.1.0/WinMdConverter-0.1.0-win-x64.zip)
+- [下載 Windows 安裝版](https://github.com/mark216tw/WinMdConverter/releases/download/v0.2.0/WinMdConverter-Setup-0.2.0-x64.exe)
+- [下載 Windows 可攜版](https://github.com/mark216tw/WinMdConverter/releases/download/v0.2.0/WinMdConverter-0.2.0-win-x64.zip)
 - [查看所有版本](https://github.com/mark216tw/WinMdConverter/releases)
 
 目前提供 Windows x64 版本。安裝檔尚未進行程式碼簽章，Windows SmartScreen 可能在第一次執行時顯示提醒。
@@ -23,14 +23,15 @@ WinMdConverter 是一套簡單、離線且實用的 Windows Markdown 文件轉�
 ## 主要功能
 
 - 使用 Markdig `UseAdvancedExtensions()` 解析 Markdown
-- 支援 HTML、PDF 或同時輸出
+- 支援 HTML、PDF、DOCX 及任意格式組合
 - 支援 A4 直向與橫向
-- 支援符合可列印區域及 50%～200% 自訂縮放
+- HTML/PDF 支援符合可列印區域及 50%～200% 自訂縮放
 - 支援預設、無、最小值及四邊自訂邊界
 - 可在文件開頭建立可點擊目錄
 - 可選擇 Windows 已安裝字型
 - 自動將本機圖片內嵌到 HTML
 - 透過系統 Microsoft Edge Headless 產生 PDF
+- 透過 Open XML 產生不需要 Microsoft Word 的 DOCX
 - 提供轉換進度、取消、覆寫確認及完成連結
 - 提供 `mdconvert` CLI、JSON 輸出及明確 Exit Code
 - 提供繁體中文介面與多解析度 Windows 圖示
@@ -43,21 +44,22 @@ WinMdConverter 是一套簡單、離線且實用的 Windows Markdown 文件轉�
 | .NET | 安裝版與可攜版皆已內附 .NET 8 Runtime |
 | PDF 輸出 | 需要 Microsoft Edge |
 | HTML 輸出 | 不需要 Microsoft Edge |
+| DOCX 輸出 | 不需要 Microsoft Word 或 Microsoft Edge |
 
 ## 快速使用
 
 圖形介面：
 
 1. 選擇 `.md` 或 `.markdown` 文件。
-2. 選擇輸出資料夾與 HTML、PDF 格式。
+2. 選擇輸出資料夾與 HTML、PDF、DOCX 格式。
 3. 設定字型、方向、縮放、邊界及目錄。
 4. 按下「開始轉換」。
-5. 完成後直接開啟 HTML、PDF 或輸出資料夾。
+5. 完成後直接開啟 HTML、PDF、DOCX 或輸出資料夾。
 
 CLI：
 
 ```powershell
-mdconvert document.md --format both --toc
+mdconvert document.md --format html,pdf,docx --toc
 ```
 
 ```powershell

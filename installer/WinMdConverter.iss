@@ -1,5 +1,5 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "0.1.0"
+  #define MyAppVersion "0.2.0"
 #endif
 #ifndef MyLanguageFile
   #define MyLanguageFile "compiler:Default.isl"
@@ -163,7 +163,7 @@ function InitializeSetup: Boolean;
 begin
   Result := True;
   if not IsEdgeInstalled then
-    Result := MsgBox('未偵測到 Microsoft Edge。HTML 轉換仍可使用，但 PDF 轉換需要 Edge。是否繼續安裝？',
+    Result := MsgBox('未偵測到 Microsoft Edge。HTML 與 DOCX 轉換仍可使用，但 PDF 轉換需要 Edge。是否繼續安裝？',
       mbConfirmation, MB_YESNO) = IDYES;
 end;
 

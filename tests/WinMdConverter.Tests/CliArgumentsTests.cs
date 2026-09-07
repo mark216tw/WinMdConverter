@@ -33,4 +33,48 @@ public sealed class CliArgumentsTests
 
         Assert.Contains("同時指定", exception.Message);
     }
+
+    [Theory]
+    [InlineData("docx", OutputFormat.Docx)]
+    [InlineData("html,pdf", OutputFormat.Html | OutputFormat.Pdf)]
+    [InlineData("PDF, DOCX", OutputFormat.Pdf | OutputFormat.Docx)]
+    [InlineData("all", OutputFormat.All)]
+    public void Parse_ReadsSingleCombinedAndAllFormats(string value, OutputFormat expected)
+    {
+        var arguments = CliArguments.Parse(["document.md", "--format", value]);
+
+        Assert.Equal(expected, arguments.Format);
+    }
+
+    [Theory]
+    [InlineData("both", "不支援")]
+    [InlineData("html,html", "重複")]
+    [InlineData("all,pdf", "不可與其他格式混用")]
+    [InlineData("html,", "不可為空")]
+    public void Parse_RejectsInvalidFormats(string value, string expectedMessage)
+    {
+        var exception = Assert.Throws<ArgumentException>(() =>
+            CliArguments.Parse(["document.md", "--format", value]));
+
+        Assert.Contains(expectedMessage, exception.Message);
+    }
+
+    [Fact]
+    public void Parse_RequiresFormatForConversion()
+    {
+        var exception = Assert.Throws<ArgumentException>(() => CliArguments.Parse(["document.md"]));
+
+        Assert.Contains("請指定 --format", exception.Message);
+    }
+
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("--version")]
+    [InlineData("--list-fonts")]
+    public void Parse_DoesNotRequireFormatForInformationalCommands(string command)
+    {
+        var exception = Record.Exception(() => CliArguments.Parse([command]));
+
+        Assert.Null(exception);
+    }
 }

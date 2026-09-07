@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = "0.1.0",
+    [string]$Version = "0.2.0",
     [string]$Runtime = "win-x64",
     [switch]$SkipTests,
     [switch]$SkipInstaller
@@ -68,7 +68,8 @@ Compress-Archive -Path (Join-Path $portable "*") -DestinationPath $zipPath -Comp
 if (-not $SkipInstaller) {
     $isccCandidates = @(
         (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
-        (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+        (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe")
     )
     $iscc = $isccCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if ($null -eq $iscc) {

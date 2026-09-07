@@ -10,7 +10,7 @@ mdconvert --list-fonts
 若使用可攜版但尚未加入 PATH，請在解壓縮資料夾內執行：
 
 ```powershell
-.\mdconvert.exe document.md --format both
+.\mdconvert.exe document.md --format html,pdf,docx
 ```
 
 ## 參數
@@ -18,10 +18,10 @@ mdconvert --list-fonts
 | 參數 | 說明 | 預設值 |
 |---|---|---|
 | `<input>` | 單一 `.md` 或 `.markdown` 文件 | 必填 |
-| `--format html\|pdf\|both` | 輸出格式 | `both` |
+| `--format <formats>` | 必填；`html`、`pdf`、`docx`、逗號組合或 `all` | 必填 |
 | `-o, --output <directory>` | 輸出資料夾 | 來源文件資料夾 |
 | `--orientation portrait\|landscape` | A4 紙張方向 | `portrait` |
-| `--scale fit\|50-200` | 符合頁面或自訂百分比 | `fit` |
+| `--scale fit\|50-200` | HTML/PDF 符合頁面或自訂百分比 | `fit` |
 | `--margin default\|none\|minimum\|custom` | 邊界模式 | `default` |
 | `--margin-top <mm>` | 自訂上邊界 | 無 |
 | `--margin-right <mm>` | 自訂右邊界 | 無 |
@@ -37,14 +37,14 @@ mdconvert --list-fonts
 | `--version` | 顯示版本 | 無 |
 | `-h, --help` | 顯示命令說明 | 無 |
 
-自訂邊界必須同時提供上、右、下、左四個數值。
+自訂邊界必須同時提供上、右、下、左四個數值。`--format` 不接受重複格式，且 `all` 不可與其他格式混用。`--help`、`--version` 與 `--list-fonts` 不需要指定格式。
 
 ## 使用範例
 
 同時輸出 HTML 與 PDF：
 
 ```powershell
-mdconvert document.md --format both
+mdconvert document.md --format html,pdf
 ```
 
 建立橫向 PDF、目錄及最小邊界：
@@ -63,7 +63,7 @@ mdconvert document.md --format pdf --font "Microsoft JhengHei" --scale 90
 
 ```powershell
 mdconvert document.md `
-  --format both `
+  --format html,pdf,docx `
   --margin custom `
   --margin-top 10 `
   --margin-right 15 `
@@ -80,7 +80,7 @@ mdconvert --list-fonts
 ## JSON 輸出
 
 ```powershell
-mdconvert document.md --format both --json
+mdconvert document.md --format all --json
 ```
 
 成功輸出範例：
@@ -91,6 +91,7 @@ mdconvert document.md --format both --json
   "partial": false,
   "htmlPath": "C:\\Documents\\document.html",
   "pdfPath": "C:\\Documents\\document.pdf",
+  "docxPath": "C:\\Documents\\document.docx",
   "warnings": [],
   "errors": []
 }

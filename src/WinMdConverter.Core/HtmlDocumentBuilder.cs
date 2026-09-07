@@ -22,7 +22,7 @@ public sealed class HtmlDocumentBuilder
     {
         var warnings = new List<string>();
         var document = Markdown.Parse(markdown, _pipeline);
-        EmbedLocalImages(document, Path.GetDirectoryName(sourcePath)!, warnings);
+        EmbedLocalImages(document, Path.GetDirectoryName(sourcePath)!, options.Format.HasFlag(OutputFormat.Docx), warnings);
 
         var headings = PrepareHeadings(document);
         var body = Render(document);
@@ -159,12 +159,22 @@ public sealed class HtmlDocumentBuilder
         html.Append("</ol>");
     }
 
-    private static void EmbedLocalImages(MarkdownDocument document, string sourceDirectory, ICollection<string> warnings)
+    private static void EmbedLocalImages(
+        MarkdownDocument document,
+        string sourceDirectory,
+        bool producingDocx,
+        ICollection<string> warnings)
     {
         foreach (var image in document.Descendants<LinkInline>().Where(link => link.IsImage && link.Url is not null))
         {
             var url = image.Url!;
-            if (Uri.TryCreate(url, UriKind.Absolute, out var absoluteUri) && absoluteUri.Scheme is "http" or "https" or "data")
+            if (Uri.TryCreate(url, UriKind.Absolute, out var absoluteUri) && absoluteUri.Scheme is "http" or "https")
+            {
+                if (producingDocx)
+                    warnings.Add($"DOCX 不會嵌入遠端圖片：{url}");
+                continue;
+            }
+            if (absoluteUri?.Scheme == "data")
                 continue;
 
             var localValue = Uri.UnescapeDataString(url.Split('#', '?')[0]);
@@ -184,6 +194,9 @@ public sealed class HtmlDocumentBuilder
                 warnings.Add($"不支援的圖片格式：{url}");
                 continue;
             }
+
+            if (producingDocx && mime == "image/webp")
+                warnings.Add($"DOCX 不支援 WebP 圖片：{url}");
 
             image.Url = $"data:{mime};base64,{Convert.ToBase64String(File.ReadAllBytes(path))}";
         }

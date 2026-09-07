@@ -22,7 +22,7 @@ public static class CliApplication
             return 1;
         }
 
-        if (parsed.ShowHelp || args.Length == 0)
+        if (parsed.ShowHelp)
         {
             PrintHelp();
             return 0;
@@ -120,6 +120,7 @@ public static class CliApplication
                 partial = result.IsPartial,
                 htmlPath = result.HtmlPath,
                 pdfPath = result.PdfPath,
+                docxPath = result.DocxPath,
                 warnings = result.Warnings,
                 errors = result.Errors
             }, JsonOptions));
@@ -127,11 +128,13 @@ public static class CliApplication
         }
 
         if (!quiet)
-            Console.WriteLine(result.IsSuccess ? "轉換完成" : "部分轉換完成");
+            Console.WriteLine(result.IsSuccess ? "轉換完成" : result.IsPartial ? "部分轉換完成" : "轉換失敗");
         if (!quiet && result.HtmlPath is not null)
             Console.WriteLine($"HTML: {result.HtmlPath}");
         if (!quiet && result.PdfPath is not null)
             Console.WriteLine($"PDF:  {result.PdfPath}");
+        if (!quiet && result.DocxPath is not null)
+            Console.WriteLine($"DOCX: {result.DocxPath}");
         foreach (var warning in result.Warnings)
             Console.Error.WriteLine($"警告：{warning}");
         foreach (var error in result.Errors)
@@ -151,7 +154,7 @@ public static class CliApplication
 
     private static void OpenOutputs(ConversionResult result)
     {
-        foreach (var path in new[] { result.HtmlPath, result.PdfPath }.Where(path => path is not null))
+        foreach (var path in new[] { result.HtmlPath, result.PdfPath, result.DocxPath }.Where(path => path is not null))
         {
             Process.Start(new ProcessStartInfo(path!) { UseShellExecute = true });
         }
@@ -160,17 +163,17 @@ public static class CliApplication
     private static void PrintHelp()
     {
         Console.WriteLine("""
-            mdconvert - Windows Markdown 轉 HTML / PDF 工具
+            mdconvert - Windows Markdown 轉 HTML / PDF / DOCX 工具
 
             用法：
               mdconvert <input.md> [options]
               mdconvert --list-fonts
 
             選項：
-              --format html|pdf|both           輸出格式，預設 both
+              --format <formats>               必填；html、pdf、docx、逗號組合或 all
               -o, --output <directory>         輸出資料夾
               --orientation portrait|landscape 紙張方向，預設 portrait
-              --scale fit|50-200               縮放模式或百分比，預設 fit
+              --scale fit|50-200               HTML / PDF 縮放模式或百分比，預設 fit
               --margin default|none|minimum|custom
               --margin-top <mm>                自訂上邊界
               --margin-right <mm>              自訂右邊界
