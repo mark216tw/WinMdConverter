@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        VersionText.Text = $"WinMdConverter v{typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "未知"}";
         _conversionService = new MarkdownConversionService(fontService: _fontService);
         LoadFonts();
         LoadSettings();

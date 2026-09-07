@@ -6,7 +6,7 @@
     <Application.Resources>
         <SolidColorBrush x:Key="CanvasBrush" Color="#F3F1EC" />
         <SolidColorBrush x:Key="InkBrush" Color="#17212B" />
-        <SolidColorBrush x:Key="MutedBrush" Color="#64717D" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#46525D" />
         <SolidColorBrush x:Key="AccentBrush" Color="#176B63" />
         <SolidColorBrush x:Key="BorderBrush" Color="#D9D7D0" />
 
@@ -70,8 +70,8 @@
                                 <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ButtonBorder" Property="Background" Value="#91AAA6" />
-                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#91AAA6" />
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#607B77" />
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#607B77" />
                                 <Setter TargetName="ButtonText" Property="Foreground" Value="White" />
                             </Trigger>
                         </ControlTemplate.Triggers>
